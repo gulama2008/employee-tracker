@@ -1,0 +1,100 @@
+const mainMenuQuestions = [
+    {
+        type: "list",
+        choices: [
+        "View all departments",
+        "View all roles",
+        "View all employees",
+        "Add a department",
+        "Add a role",
+        "Add an employee",
+        "Update an employee role",
+        "Update employee managers",
+        "View employees by manager",
+        "View employees by department",
+        "Delete departments, roles, and employees",
+        "View the total utilized budget of a department",
+        "Quit employee-tracker"
+        ],
+        message: "What would you like to do?",
+        name: "choice",
+    },
+];
+
+const addDepartmentQuestions = [
+    {
+        type: "input",
+        message: "What is the name of the department?",
+        name: "departmentName",
+    }
+];
+
+const addRoleQuestions = [
+    {
+        type: "input",
+        message: "What is the name of the role?",
+        name: "roleName",
+    },
+    {
+        type: "input",
+        message: "What is the salary of the role?",
+        name: "roleSalary",
+    },
+    {
+        type: "list",
+        choices: [
+            "Engineering",
+            "Finance",
+            "Legal",
+            "Sales"
+        ],
+        message: "Which department does the role belong to?",
+        name: "roleDepartment",
+    },
+];
+
+const addEmployeeQuestions = [
+  {
+    type: "input",
+    message: "What is the first name of the employee?",
+    name: "employeeFirstName",
+  },
+  {
+    type: "input",
+    message: "What is the last name of the employee?",
+    name: "employeeLastName",
+  },
+  {
+    type: "input",
+    message: "What is the role of the employee?",
+    name: "employeeRole",
+  },
+  {
+    type: "list",
+    message: "Who is the manager of the employee?",
+    name: "employeeManager",
+  },
+];
+
+const updateEmployeeRoleQuestions = [
+  {
+    type: "list",
+    choices: employeeList,
+    message: "Which employee would you like to update?",
+    name: "employeeToUpdate",
+  },
+  {
+    type: "list",
+    choices: roleList,
+    message: "What is the new role of this employee?",
+    name: "employeeNewRole",
+  },
+];
+
+module.exports = {
+    mainMenuQuestions,
+    addDepartmentQuestions,
+    addRoleQuestions,
+    addEmployeeQuestions,
+    updateEmployeeRoleQuestions
+}
