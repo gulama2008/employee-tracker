@@ -93,6 +93,21 @@ function viewAllEmployees() {
       .catch(console.log)
 }
 
+function addDepartment() { 
+    inquirer
+        .prompt(inquirerQuestions.addDepartmentQuestions)
+        .then(result => { 
+            const query = `INSERT INTO department (name) VALUES (?)`;
+            const name = result.departmentName;
+            db.promise()
+              .query(query,name)
+              .then(() => {
+                console.log(`Added ${name} to the database`);
+                init();
+              })
+              .catch(console.log);
+        })  
+}
 
 function handleChoice(choice) { 
     switch (choice) { 
@@ -104,6 +119,9 @@ function handleChoice(choice) {
             break;
         case "View all employees":
             viewAllEmployees();
+            break;
+        case "Add a department":
+            addDepartment();
             break;
     }
 }

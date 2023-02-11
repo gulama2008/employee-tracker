@@ -8,3 +8,7 @@ FROM (
     ON role.department_id=department.id) 
     LEFT JOIN employee m 
     ON e.manager_id=m.id;
+
+SELECT * FROM department;
+
+-- DELETE FROM department WHERE id=5;
