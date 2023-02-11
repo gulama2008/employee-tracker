@@ -79,13 +79,13 @@ const addEmployeeQuestions = [
 const updateEmployeeRoleQuestions = [
   {
     type: "list",
-    choices: employeeList,
+    // choices: employeeList,
     message: "Which employee would you like to update?",
     name: "employeeToUpdate",
   },
   {
     type: "list",
-    choices: roleList,
+    // choices: roleList,
     message: "What is the new role of this employee?",
     name: "employeeNewRole",
   },
@@ -96,5 +96,5 @@ module.exports = {
     addDepartmentQuestions,
     addRoleQuestions,
     addEmployeeQuestions,
-    updateEmployeeRoleQuestions
+    // updateEmployeeRoleQuestions
 }
