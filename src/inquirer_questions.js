@@ -78,24 +78,27 @@ function addNewEmployeeQuestions(roleChoices,managerChoices) {
     ];
 }
 
-const updateEmployeeRoleQuestions = [
-  {
-    type: "list",
-    // choices: employeeList,
-    message: "Which employee would you like to update?",
-    name: "employeeToUpdate",
-  },
-  {
-    type: "list",
-    // choices: roleList,
-    message: "What is the new role of this employee?",
-    name: "employeeNewRole",
-  },
-];
+function updateEmployeeRoleQuestions(employeeChoices,roleChoices) { 
+    return [
+      {
+        type: "list",
+        choices: employeeChoices,
+        message: "Which employee would you like to update?",
+        name: "employeeToUpdate",
+      },
+      {
+        type: "list",
+        choices: roleChoices,
+        message: "What is the new role of this employee?",
+        name: "employeeNewRole",
+      },
+    ];
+}
 
 module.exports = {
     mainMenuQuestions,
     addDepartmentQuestions,
     addNewRoleQuestions,
     addNewEmployeeQuestions,
+    updateEmployeeRoleQuestions,
 }

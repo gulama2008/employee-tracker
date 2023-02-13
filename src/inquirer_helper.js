@@ -2,6 +2,7 @@ const inquirer = require("inquirer");
 const mysql = require("mysql2");
 const cTable = require("console.table");
 const inquirerQuestions = require("./inquirer_questions");
+const { up } = require("inquirer/lib/utils/readline");
 const db = mysql.createConnection(
   {
     host: "localhost",
@@ -90,7 +91,7 @@ function addDepartment() {
         })  
 }
 
-function getUpdatedDptListAndAddNewRole() {
+function addNewRole() {
   const departmentListQuery = `SELECT name FROM department`;
   db.promise()
     .query(departmentListQuery)
@@ -183,8 +184,45 @@ function addEmployee(updatedRoleList,updatedEmployeeList) {
                 .catch(console.log);
             });
           })
-          
       });
+}
+
+function updateEmployeeRole() { 
+    const employeeList = `SELECT CONCAT(first_name," ",last_name) AS name FROM employee`;
+    db.promise()
+      .query(employeeList)
+      .then(([rows, fields]) => {
+        const updatedEmployeeList = rows.map((e) => e.name);
+        const roleListQuery = `SELECT title FROM role`;
+        db.promise()
+          .query(roleListQuery)
+          .then(([rows, fields]) => {
+            const updatedRoleList = rows.map((e) => e.title);
+            updateEmployee(updatedEmployeeList, updatedRoleList);
+          })
+          .catch(console.log);
+      })
+}
+
+function updateEmployee(updatedEmployeeList, updatedRoleList) {
+  inquirer
+    .prompt(inquirerQuestions.updateEmployeeRoleQuestions(updatedEmployeeList,updatedRoleList))
+    .then(result => { 
+      const getRoleIdByName = `SELECT id FROM role WHERE title=?`;
+      db.promise()
+        .query(getRoleIdByName, result.employeeNewRole)
+        .then(([rows, fields]) => {
+          const newRoleId=rows[0].id;
+          const updateEmployeeRole = `UPDATE employee SET role_id=? WHERE CONCAT(first_name," ",last_name)=?`;
+          db.promise()
+            .query(updateEmployeeRole, [newRoleId, result.employeeToUpdate])
+            .then(() => {
+              console.log(`Updated employee's role`);
+              init();
+            });
+        });
+    })
+  
 }
 
 function handleChoice(choice) { 
@@ -202,10 +240,13 @@ function handleChoice(choice) {
             addDepartment();
             break;
         case "Add a role":
-            getUpdatedDptListAndAddNewRole();
+            addNewRole();
             break;
         case "Add an employee":
             addNewEmployee();
+            break;
+        case "Update an employee role":
+            updateEmployeeRole();
             break;
     }
 }
