@@ -14,17 +14,6 @@ const db = mysql.createConnection(
   console.log(`Connected to the company_db database.`)
 );
 
-function getUpdatedDepartmentList() { 
-    const departmentListQuery = `SELECT name FROM department`;
-    db.promise()
-      .query(departmentListQuery)
-      .then(([rows, fields]) => {
-          const updatedDepartmentList = rows.map((e) => e.name);
-          console.log(updatedDepartmentList,111);
-          addRole(updatedDepartmentList);
-      })
-      .catch(console.log);
-}
 
 function getUpdatedEmployeeList() { 
     const employeeListQuery = `SELECT CONCAT(first_name," ",last_name) AS name FROM employee`;
@@ -34,16 +23,9 @@ function getUpdatedEmployeeList() {
     });
 }
 
-function getUpdatedRoleList() { 
-    const roleListQuery = 'SELECT title FROM role';
-    db.query(roleListQuery, function (err, results) {
-      const roleList = results.map((e) => e.title);
-      return roleList;
-    });
-}
 
-const init = function () { 
-    
+
+const init = function () {  
     inquirer
         .prompt(inquirerQuestions.mainMenuQuestions)
         .then(result => { 
@@ -108,6 +90,18 @@ function addDepartment() {
         })  
 }
 
+function getUpdatedDptListAndAddNewRole() {
+  const departmentListQuery = `SELECT name FROM department`;
+  db.promise()
+    .query(departmentListQuery)
+    .then(([rows, fields]) => {
+      const updatedDepartmentList = rows.map((e) => e.name);
+      console.log(updatedDepartmentList, 111);
+      addRole(updatedDepartmentList);
+    })
+    .catch(console.log);
+}
+
 function addRole(updatedDepartmentList) {
   inquirer
     .prompt(inquirerQuestions.addNewRoleQuestions(updatedDepartmentList))
@@ -137,6 +131,62 @@ function addRole(updatedDepartmentList) {
     });
 }
 
+function addNewEmployee() {
+    const roleListQuery = `SELECT title FROM role`;
+    db.promise()
+      .query(roleListQuery)
+      .then(([rows, fields]) => {
+        const updatedRoleList = rows.map((e) => e.title);
+        console.log(updatedRoleList, 111);
+        const employeeList = `SELECT CONCAT(first_name," ",last_name) AS name FROM employee`;
+        db.promise()
+          .query(employeeList)
+          .then(([rows, fields]) => {
+            const updatedEmployeeList = rows.map((e) => e.name);
+              addEmployee(updatedRoleList, updatedEmployeeList);
+          })
+          .catch(console.log);
+      })
+      .catch(console.log);
+}
+
+function addEmployee(updatedRoleList,updatedEmployeeList) {
+    inquirer
+      .prompt(inquirerQuestions.addNewEmployeeQuestions(updatedRoleList,updatedEmployeeList))
+      .then((result) => {
+        const params = [];
+        params.push(result.employeeFirstName);
+        params.push(result.employeeLastName);
+        const getRoleIdByName = `SELECT id FROM role WHERE title=?`;
+        db.promise()
+          .query(getRoleIdByName, result.employeeRole)
+          .then(([rows, fields]) => {
+            params.push(rows[0].id);
+            console.log(params, 1);
+            const getManagerIdByName = `SELECT id FROM employee WHERE CONCAT(first_name," ",last_name)=?`;
+            db.promise()
+              .query(getManagerIdByName, result.employeeManager)
+              .then(([rows, fields]) => {
+                params.push(rows[0].id);
+                console.log(params, 1);
+                return params;
+              })
+              .then((params) => {
+                console.log(params, 2);
+                const query = `INSERT INTO employee (first_name,last_name,role_id,manager_id) VALUES (?,?,?,?)`;
+                db.promise()
+                .query(query, params)
+                .then(() => {
+                    console.log(`Added ${params[0]} ${params[1]} to the database`);
+                    init();
+                })
+                .catch(console.log);
+            });
+          })
+          
+      });
+}
+
 function handleChoice(choice) { 
     switch (choice) { 
         case "View all departments":
@@ -152,10 +202,10 @@ function handleChoice(choice) {
             addDepartment();
             break;
         case "Add a role":
-            getUpdatedDepartmentList();
+            getUpdatedDptListAndAddNewRole();
             break;
         case "Add an employee":
-            addEmployeeQuestions();
+            addNewEmployee();
             break;
     }
 }

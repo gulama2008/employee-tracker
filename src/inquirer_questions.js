@@ -51,28 +51,32 @@ function addNewRoleQuestions(choices) {
 
 }
 
-const addEmployeeQuestions = [
-  {
-    type: "input",
-    message: "What is the first name of the employee?",
-    name: "employeeFirstName",
-  },
-  {
-    type: "input",
-    message: "What is the last name of the employee?",
-    name: "employeeLastName",
-  },
-  {
-    type: "input",
-    message: "What is the role of the employee?",
-    name: "employeeRole",
-  },
-  {
-    type: "list",
-    message: "Who is the manager of the employee?",
-    name: "employeeManager",
-  },
-];
+function addNewEmployeeQuestions(roleChoices,managerChoices) { 
+    return [
+      {
+        type: "input",
+        message: "What is the first name of the employee?",
+        name: "employeeFirstName",
+      },
+      {
+        type: "input",
+        message: "What is the last name of the employee?",
+        name: "employeeLastName",
+      },
+      {
+        type: "list",
+        choices:roleChoices,
+        message: "What is the role of the employee?",
+        name: "employeeRole",
+      },
+      {
+        type: "list",
+        choices:managerChoices,
+        message: "Who is the manager of the employee?",
+        name: "employeeManager",
+      },
+    ];
+}
 
 const updateEmployeeRoleQuestions = [
   {
@@ -92,7 +96,6 @@ const updateEmployeeRoleQuestions = [
 module.exports = {
     mainMenuQuestions,
     addDepartmentQuestions,
-    addEmployeeQuestions,
     addNewRoleQuestions,
-    // updateEmployeeRoleQuestions
+    addNewEmployeeQuestions,
 }
