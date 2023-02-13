@@ -29,29 +29,27 @@ const addDepartmentQuestions = [
     }
 ];
 
-const addRoleQuestions = [
-    {
+function addNewRoleQuestions(choices) {
+    return [
+      {
         type: "input",
         message: "What is the name of the role?",
         name: "roleName",
-    },
-    {
+      },
+      {
         type: "input",
         message: "What is the salary of the role?",
         name: "roleSalary",
-    },
-    {
+      },
+      {
         type: "list",
-        choices: [
-            "Engineering",
-            "Finance",
-            "Legal",
-            "Sales"
-        ],
+        choices: choices,
         message: "Which department does the role belong to?",
         name: "roleDepartment",
-    },
-];
+      },
+    ];
+
+}
 
 const addEmployeeQuestions = [
   {
@@ -94,7 +92,7 @@ const updateEmployeeRoleQuestions = [
 module.exports = {
     mainMenuQuestions,
     addDepartmentQuestions,
-    addRoleQuestions,
     addEmployeeQuestions,
+    addNewRoleQuestions,
     // updateEmployeeRoleQuestions
 }
