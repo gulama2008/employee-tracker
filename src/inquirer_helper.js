@@ -397,6 +397,27 @@ function deleteRoleQuery(employeeList) {
     });
 }
 
+async function getUpdatedDepartmentList() {
+  const departmentListQuery = `SELECT name FROM department`;
+  const result = await db.promise().query(departmentListQuery);
+  return result[0].map((e) => e.name);
+}
+
+async function viewBudget() {
+  const updatedDepartmentList = await getUpdatedDepartmentList();
+  inquirer
+    .prompt(inquirerQuestions.viewBudgetQuestions(updatedDepartmentList))
+    .then((result) => {
+      const viewBudgetQuery = `SELECT department.name AS department,SUM(salary) AS budget FROM role JOIN department ON role.department_id=department.id GROUP BY department.name HAVING department.name=?`;
+      db.promise()
+        .query(viewBudgetQuery, result.departmentName)
+        .then(([rows, fields]) => {
+          console.table(rows);
+          init();
+        });
+    });
+}
+
 function handleChoice(choice) { 
     switch (choice) {
       case "View all departments":
@@ -438,8 +459,9 @@ function handleChoice(choice) {
       case "Delete employees":
         deleteEmployee();
         break;
-      default:
-        console.clear();
+      case "View the total utilized budget of a department":
+        viewBudget();
+        break;
     }
 }
 

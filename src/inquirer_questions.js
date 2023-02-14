@@ -168,6 +168,17 @@ function deleteEmployeeQuestions(choices) {
     },
   ];
 }
+
+function viewBudgetQuestions(choices) {
+  return [
+    {
+      type: "list",
+      choices: choices,
+      message: "Which department would you like to view the budget?",
+      name: "departmentName",
+    },
+  ];
+}
 module.exports = {
   mainMenuQuestions,
   addDepartmentQuestions,
@@ -180,4 +191,5 @@ module.exports = {
   deleteDepartmentQuestions,
   deleteRoleQuestions,
   deleteEmployeeQuestions,
+  viewBudgetQuestions,
 };
