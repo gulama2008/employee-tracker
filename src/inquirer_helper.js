@@ -20,8 +20,9 @@ const init = function () {
         .prompt(inquirerQuestions.mainMenuQuestions)
         .then(result => { 
             // console.log(result);
-            if (result.choice === "Quit employee-tracker") {
-                return "Finish";
+          if (result.choice === "Quit employee-tracker") {
+            
+              process.exit();
             } else { 
                 handleChoice(result.choice);
             }        
@@ -327,54 +328,50 @@ function deleteDepartmentQuery(departmentList) {
     });
 }
 
-// function getUpdatedRoleList() {
-//   const roleListQuery = `SELECT name FROM role`;
-//   db
-//     .promise()
-//     .query(roleListQuery)
-//     .then(([rows, fields]) => {
-//       return rows.map((e) => e.name);
-//     });
-// }
-
-// function deleteRole() {
-//   const updatedRoleList =  getUpdatedRoleList();
-//   inquirer
-//     .prompt(inquirerQuestions.deleteRoleQuestions(updatedRoleList))
-//     .then((result) => {
-//       const deleteRoleQuery = `DELETE FROM role WHERE name=?`;
-//       db.promise()
-//         .query(deleteRoleQuery, result.roleName)
-//         .then(([rows, fields]) => {
-//           console.log(`Deleted ${result.roleName} from role table`);
-//           init();
-//         });
-//     });
-// }
-
-function deleteRole() {
+async function getUpdatedRoleList() {
   const roleListQuery = `SELECT title FROM role`;
-  db.promise()
-    .query(roleListQuery)
-    .then(([rows, fields]) => {
-      const roleList = rows.map((e) => e.title);
-      deleteRoleQuery(roleList);
-    });
+  const result = await db.promise().query(roleListQuery);
+  return result[0].map((e) => e.title);
 }
 
-function deleteRoleQuery(roleList) {
+async function deleteRole() {
+  const updatedRoleList = await getUpdatedRoleList();
   inquirer
-    .prompt(inquirerQuestions.deleteRoleQuestions(roleList))
+    .prompt(inquirerQuestions.deleteRoleQuestions(updatedRoleList))
     .then((result) => {
       const deleteRoleQuery = `DELETE FROM role WHERE title=?`;
       db.promise()
         .query(deleteRoleQuery, result.roleTitle)
-        .then(() => {
+        .then(([rows, fields]) => {
           console.log(`Deleted ${result.roleTitle} from role table`);
           init();
         });
     });
 }
+
+// function deleteRole() {
+//   const roleListQuery = `SELECT title FROM role`;
+//   db.promise()
+//     .query(roleListQuery)
+//     .then(([rows, fields]) => {
+//       const roleList = rows.map((e) => e.title);
+//       deleteRoleQuery(roleList);
+//     });
+// }
+
+// function deleteRoleQuery(roleList) {
+//   inquirer
+//     .prompt(inquirerQuestions.deleteRoleQuestions(roleList))
+//     .then((result) => {
+//       const deleteRoleQuery = `DELETE FROM role WHERE title=?`;
+//       db.promise()
+//         .query(deleteRoleQuery, result.roleTitle)
+//         .then(() => {
+//           console.log(`Deleted ${result.roleTitle} from role table`);
+//           init();
+//         });
+//     });
+// }
 
 function deleteEmployee() {
   const employeeListQuery = `SELECT CONCAT(first_name," ",last_name) as name FROM employee`;
@@ -441,6 +438,8 @@ function handleChoice(choice) {
       case "Delete employees":
         deleteEmployee();
         break;
+      default:
+        console.clear();
     }
 }
 
