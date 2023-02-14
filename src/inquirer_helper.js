@@ -19,14 +19,24 @@ const init = function () {
     inquirer
         .prompt(inquirerQuestions.mainMenuQuestions)
         .then(result => { 
-            // console.log(result);
           if (result.choice === "Quit employee-tracker") {
-            
               process.exit();
             } else { 
                 handleChoice(result.choice);
             }        
         })
+}
+
+async function getUpdatedRoleList() {
+  const roleListQuery = `SELECT title FROM role`;
+  const result = await db.promise().query(roleListQuery);
+  return result[0].map((e) => e.title);
+}
+
+async function getUpdatedDepartmentList() {
+  const departmentListQuery = `SELECT name FROM department`;
+  const result = await db.promise().query(departmentListQuery);
+  return result[0].map((e) => e.name);
 }
 
 function viewAllDepartments() { 
@@ -65,7 +75,7 @@ function viewAllEmployees() {
       .catch(console.log)
 }
 
-function addDepartment() { 
+function addNewDepartment() { 
     inquirer
         .prompt(inquirerQuestions.addDepartmentQuestions)
         .then(result => { 
@@ -81,40 +91,27 @@ function addDepartment() {
         })  
 }
 
-function addNewRole() {
-  const departmentListQuery = `SELECT name FROM department`;
-  db.promise()
-    .query(departmentListQuery)
-    .then(([rows, fields]) => {
-      const updatedDepartmentList = rows.map((e) => e.name);
-      console.log(updatedDepartmentList, 111);
-      addRole(updatedDepartmentList);
-    })
-    .catch(console.log);
-}
-
-function addRole(updatedDepartmentList) {
+async function addNewRole() {
+  const updatedDepartmentList = await getUpdatedDepartmentList();
   inquirer
     .prompt(inquirerQuestions.addNewRoleQuestions(updatedDepartmentList))
     .then((result) => {
-      const params = [];
-      params.push(result.roleName);
-      params.push(result.roleSalary);
-      const getDepartmentIdByName = `SELECT id FROM department WHERE name=?`;
+      const getDepartmentIdByNameQuery = `SELECT id FROM department WHERE name=?`;
       db.promise()
-        .query(getDepartmentIdByName, result.roleDepartment)
+        .query(getDepartmentIdByNameQuery, result.roleDepartment)
         .then(([rows, fields]) => {
-          params.push(rows[0].id);
-          console.log(params, 1);
-          return params;
+          return rows[0].id;
         })
-        .then((params) => {
-          console.log(params, 2);
-          const query = `INSERT INTO role (title,salary,department_id) VALUES (?,?,?)`;
+        .then((departmentId) => {
+          const insertRoleQuery = `INSERT INTO role (title,salary,department_id) VALUES (?,?,?)`;
           db.promise()
-            .query(query, params)
+            .query(insertRoleQuery, [
+              result.roleName,
+              result.roleSalary,
+              departmentId,
+            ])
             .then(() => {
-              console.log(`Added ${params[0]} to the database`);
+              console.log(`Added ${result.roleName}} to the database`);
               init();
             })
             .catch(console.log);
@@ -328,11 +325,7 @@ function deleteDepartmentQuery(departmentList) {
     });
 }
 
-async function getUpdatedRoleList() {
-  const roleListQuery = `SELECT title FROM role`;
-  const result = await db.promise().query(roleListQuery);
-  return result[0].map((e) => e.title);
-}
+
 
 async function deleteRole() {
   const updatedRoleList = await getUpdatedRoleList();
@@ -397,11 +390,7 @@ function deleteRoleQuery(employeeList) {
     });
 }
 
-async function getUpdatedDepartmentList() {
-  const departmentListQuery = `SELECT name FROM department`;
-  const result = await db.promise().query(departmentListQuery);
-  return result[0].map((e) => e.name);
-}
+
 
 async function viewBudget() {
   const updatedDepartmentList = await getUpdatedDepartmentList();
@@ -430,7 +419,7 @@ function handleChoice(choice) {
         viewAllEmployees();
         break;
       case "Add a department":
-        addDepartment();
+        addNewDepartment();
         break;
       case "Add a role":
         addNewRole();

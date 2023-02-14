@@ -8,4 +8,6 @@
 
 -- select CONCAT(first_name," ",last_name) as name FROM (employee e join role r on e.role_id=r.id) join department d on r.department_id=d.id where d.name="Sales";
 
-select department.name as department,SUM(salary) as budget from role join department on role.department_id=department.id group by department.name having department.name="Sales";
+-- select department.name as department,SUM(salary) as budget from role join department on role.department_id=department.id group by department.name having department.name="Sales";
+
+INSERT INTO role (title,salary,department_id) VALUES (?,?,?)
