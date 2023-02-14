@@ -14,7 +14,7 @@ const mainMenuQuestions = [
         "View employees by department",
         "Delete departments",
         "Delete roles",
-        "Delete employee",
+        "Delete employees",
         "View the total utilized budget of a department",
         "Quit employee-tracker"
         ],
@@ -158,6 +158,16 @@ function deleteRoleQuestions(choices) {
   ];
 }
 
+function deleteEmployeeQuestions(choices) {
+  return [
+    {
+      type: "list",
+      choices: choices,
+      message: "Which employee would you like to delete?",
+      name: "employeeName",
+    },
+  ];
+}
 module.exports = {
   mainMenuQuestions,
   addDepartmentQuestions,
@@ -169,4 +179,5 @@ module.exports = {
   viewEmployeeByDepartmentQuestions,
   deleteDepartmentQuestions,
   deleteRoleQuestions,
+  deleteEmployeeQuestions,
 };

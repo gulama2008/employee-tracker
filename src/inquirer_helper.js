@@ -376,6 +376,30 @@ function deleteRoleQuery(roleList) {
     });
 }
 
+function deleteEmployee() {
+  const employeeListQuery = `SELECT CONCAT(first_name," ",last_name) as name FROM employee`;
+  db.promise()
+    .query(employeeListQuery)
+    .then(([rows, fields]) => {
+      const employeeList = rows.map((e) => e.name);
+      deleteRoleQuery(employeeList);
+    });
+}
+
+function deleteRoleQuery(employeeList) {
+  inquirer
+    .prompt(inquirerQuestions.deleteEmployeeQuestions(employeeList))
+    .then((result) => {
+      const deleteEmployeeQuery = `DELETE FROM employee WHERE CONCAT(first_name," ",last_name)=?`;
+      db.promise()
+        .query(deleteEmployeeQuery, result.employeeName)
+        .then(() => {
+          console.log(`Deleted ${result.employeeName} from employee table`);
+          init();
+        });
+    });
+}
+
 function handleChoice(choice) { 
     switch (choice) {
       case "View all departments":
@@ -413,6 +437,9 @@ function handleChoice(choice) {
         break;
       case "Delete roles":
         deleteRole();
+        break;
+      case "Delete employees":
+        deleteEmployee();
         break;
     }
 }
