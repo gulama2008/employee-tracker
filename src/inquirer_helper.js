@@ -15,24 +15,13 @@ const db = mysql.createConnection(
   console.log(`Connected to the company_db database.`)
 );
 
-
-function getUpdatedEmployeeList() { 
-    const employeeListQuery = `SELECT CONCAT(first_name," ",last_name) AS name FROM employee`;
-    db.query(employeeListQuery, function (err, results) {
-      const employeeList = results.map((e) => e.name);
-      return employeeList;
-    });
-}
-
-
-
 const init = function () {  
     inquirer
         .prompt(inquirerQuestions.mainMenuQuestions)
         .then(result => { 
             // console.log(result);
             if (result.choice === "Quit employee-tracker") {
-                return;
+                return "Finish";
             } else { 
                 handleChoice(result.choice);
             }        
@@ -222,32 +211,133 @@ function updateEmployee(updatedEmployeeList, updatedRoleList) {
             });
         });
     })
-  
+}
+
+function updateEmployeeManager() { 
+  const employeeList = `SELECT CONCAT(first_name," ",last_name) AS name FROM employee`;
+  db.promise()
+    .query(employeeList)
+    .then(([rows, fields]) => {
+      const updatedEmployeeList = rows.map((e) => e.name);
+      updateManager(updatedEmployeeList, updatedEmployeeList);
+    })
+    .catch(console.log);
+}
+
+function updateManager(updatedEmployeeList) {
+  inquirer
+    .prompt(
+      inquirerQuestions.updateEmployeeManagerQuestions(updatedEmployeeList)
+    )
+    .then((result) => {
+      const getEmployeeIdByName = `SELECT id FROM employee WHERE CONCAT(first_name," ",last_name)=?`;
+      db.promise()
+        .query(getEmployeeIdByName, result.employeeNewManager)
+        .then(([rows, fields]) => {
+          const newManagerId = rows[0].id;
+          const updateEmployeeManager = `UPDATE employee SET manager_id=? WHERE CONCAT(first_name," ",last_name)=?`;
+          db.promise()
+            .query(updateEmployeeManager, [
+              newManagerId,
+              result.employeeToUpdate,
+            ])
+            .then(() => {
+              console.log(`Updated employee's manager`);
+              init();
+            });
+        });
+    });
+}
+
+function viewEmployeeByManager() {
+  const managerListQuery = `SELECT DISTINCT CONCAT(m.first_name," ",m.last_name) as name,m.id
+                        FROM employee e 
+                        JOIN employee m 
+                        ON e.manager_id=m.id
+                        WHERE e.manager_id IS NOT NULL`;
+  db.promise()
+    .query(managerListQuery)
+    .then(([rows, fields]) => {
+      const managerList = rows.map((e) => e.name);
+      viewEmployeeByManagerQuery(managerList);
+    });
+}
+
+function viewEmployeeByManagerQuery(managerList){
+  inquirer
+    .prompt(
+      inquirerQuestions.viewEmployeeByManagerQuestions(managerList)
+    )
+    .then((result) => {
+      const getEmployeeByManager = `SELECT CONCAT(e.first_name," ",e.last_name) as name FROM employee e JOIN employee m ON e.manager_id=m.id WHERE CONCAT(m.first_name," ",m.last_name)=?`;
+      db.promise()
+        .query(getEmployeeByManager, result.managerName)
+        .then(([rows, fields]) => {
+          console.table(rows);
+              init();
+          });
+      });
+}
+
+function viewEmployeeByDepartment() {
+  const departmentListQuery = `SELECT name FROM department`;                     
+  db.promise()
+    .query(departmentListQuery)
+    .then(([rows, fields]) => {
+      const departmentList = rows.map((e) => e.name);
+      viewEmployeeByDptQuery(departmentList);
+    });
+}
+
+function viewEmployeeByDptQuery(departmentList) {
+  inquirer
+    .prompt(inquirerQuestions.viewEmployeeByDepartmentQuestions(departmentList))
+    .then((result) => {
+      const getEmployeeByDepartment = `select CONCAT(first_name," ",last_name) as name FROM (employee e join role r on e.role_id=r.id) join department d on r.department_id=d.id where d.name=?`;
+      db.promise()
+        .query(getEmployeeByDepartment, result.departmentName)
+        .then(([rows, fields]) => {
+          console.table(rows);
+          init();
+        });
+    });
 }
 
 function handleChoice(choice) { 
-    switch (choice) { 
-        case "View all departments":
-            viewAllDepartments();
-            break;
-        case "View all roles":
-            viewAllRoles();
-            break;
-        case "View all employees":
-            viewAllEmployees();
-            break;
-        case "Add a department":
-            addDepartment();
-            break;
-        case "Add a role":
-            addNewRole();
-            break;
-        case "Add an employee":
-            addNewEmployee();
-            break;
-        case "Update an employee role":
-            updateEmployeeRole();
-            break;
+    switch (choice) {
+      case "View all departments":
+        viewAllDepartments();
+        break;
+      case "View all roles":
+        viewAllRoles();
+        break;
+      case "View all employees":
+        viewAllEmployees();
+        break;
+      case "Add a department":
+        addDepartment();
+        break;
+      case "Add a role":
+        addNewRole();
+        break;
+      case "Add an employee":
+        addNewEmployee();
+        break;
+      case "Update an employee role":
+        updateEmployeeRole();
+        break;
+      case "Update employee managers":
+        updateEmployeeManager();
+        break;
+      case "View employees by manager":
+        viewEmployeeByManager();
+        break;
+      case "View employees by department":
+        viewEmployeeByDepartment();
+        break;
+      case "Delete department":
+        deleteDepartment();
+        break;
     }
 }
 

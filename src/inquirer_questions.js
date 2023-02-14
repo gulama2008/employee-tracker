@@ -95,10 +95,64 @@ function updateEmployeeRoleQuestions(employeeChoices,roleChoices) {
     ];
 }
 
-module.exports = {
-    mainMenuQuestions,
-    addDepartmentQuestions,
-    addNewRoleQuestions,
-    addNewEmployeeQuestions,
-    updateEmployeeRoleQuestions,
+function updateEmployeeManagerQuestions(employeeChoices) {
+  return [
+    {
+      type: "list",
+      choices: employeeChoices,
+      message: "Which employee would you like to update?",
+      name: "employeeToUpdate",
+    },
+    {
+      type: "list",
+      choices: employeeChoices,
+      message: "What is the new manager of this employee?",
+      name: "employeeNewManager",
+    },
+  ];
 }
+
+function viewEmployeeByManagerQuestions(choices) {
+  return [
+    {
+      type: "list",
+      choices: choices,
+      message: "Which manager's employees would you like to view?",
+      name: "managerName",
+    },
+  ];
+}
+
+function viewEmployeeByDepartmentQuestions(choices) {
+  return [
+    {
+      type: "list",
+      choices: choices,
+      message: "Which department's employees would you like to view?",
+      name: "departmentName",
+    },
+  ];
+}
+
+function deleteDepartmentQuestions(choices) {
+  return [
+    {
+      type: "list",
+      choices: choices,
+      message: "Which department would you like to delete?",
+      name: "departmentName",
+    },
+  ];
+}
+
+module.exports = {
+  mainMenuQuestions,
+  addDepartmentQuestions,
+  addNewRoleQuestions,
+  addNewEmployeeQuestions,
+  updateEmployeeRoleQuestions,
+  updateEmployeeManagerQuestions,
+  viewEmployeeByManagerQuestions,
+  viewEmployeeByDepartmentQuestions,
+  deleteDepartmentQuestions,
+};
