@@ -12,7 +12,9 @@ const mainMenuQuestions = [
         "Update employee managers",
         "View employees by manager",
         "View employees by department",
-        "Delete departments, roles, and employees",
+        "Delete department",
+        "Delete role",
+        "Delete employee",
         "View the total utilized budget of a department",
         "Quit employee-tracker"
         ],

@@ -303,6 +303,30 @@ function viewEmployeeByDptQuery(departmentList) {
     });
 }
 
+function deleteDepartment() {
+  const departmentListQuery = `SELECT name FROM department`;
+  db.promise()
+    .query(departmentListQuery)
+    .then(([rows, fields]) => {
+      const departmentList = rows.map((e) => e.name);
+      deleteDepartmentQuery(departmentList);
+    });
+}
+
+function deleteDepartmentQuery(departmentList) {
+  inquirer
+    .prompt(inquirerQuestions.deleteDepartmentQuestions(departmentList))
+    .then((result) => {
+      const deleteDepartmentQuery = `DELETE FROM department WHERE name=?`;
+      db.promise()
+        .query(deleteDepartmentQuery, result.departmentName)
+        .then(([rows, fields]) => {
+          console.log(`Deleted ${result.departmentName} from the database`);
+          init();
+        });
+    });
+}
+
 function handleChoice(choice) { 
     switch (choice) {
       case "View all departments":
