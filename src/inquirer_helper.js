@@ -53,7 +53,7 @@ function viewAllRoles() {
 
 function viewAllEmployees() {
     const query =
-      "SELECT e.id,e.first_name,e.last_name,title,department.name AS department,salary,CONCAT(m.first_name,' ',m.last_name) AS manager FROM ((employee e JOIN role ON e.role_id=role.id) JOIN department ON role.department_id=department.id) LEFT JOIN employee m ON e.manager_id=m.id ORDER BY e.id"; 
+      "SELECT e.id,e.first_name,e.last_name,title,department.name AS department,salary,CONCAT(m.first_name,' ',m.last_name) AS manager FROM ((employee e LEFT JOIN role ON e.role_id=role.id) LEFT JOIN department ON role.department_id=department.id) LEFT JOIN employee m ON e.manager_id=m.id ORDER BY e.id"; 
     db
       .promise()
       .query(query)
@@ -320,8 +320,57 @@ function deleteDepartmentQuery(departmentList) {
       const deleteDepartmentQuery = `DELETE FROM department WHERE name=?`;
       db.promise()
         .query(deleteDepartmentQuery, result.departmentName)
-        .then(([rows, fields]) => {
-          console.log(`Deleted ${result.departmentName} from the database`);
+        .then(() => {
+          console.log(`Deleted ${result.departmentName} from department table`);
+          init();
+        });
+    });
+}
+
+// function getUpdatedRoleList() {
+//   const roleListQuery = `SELECT name FROM role`;
+//   db
+//     .promise()
+//     .query(roleListQuery)
+//     .then(([rows, fields]) => {
+//       return rows.map((e) => e.name);
+//     });
+// }
+
+// function deleteRole() {
+//   const updatedRoleList =  getUpdatedRoleList();
+//   inquirer
+//     .prompt(inquirerQuestions.deleteRoleQuestions(updatedRoleList))
+//     .then((result) => {
+//       const deleteRoleQuery = `DELETE FROM role WHERE name=?`;
+//       db.promise()
+//         .query(deleteRoleQuery, result.roleName)
+//         .then(([rows, fields]) => {
+//           console.log(`Deleted ${result.roleName} from role table`);
+//           init();
+//         });
+//     });
+// }
+
+function deleteRole() {
+  const roleListQuery = `SELECT title FROM role`;
+  db.promise()
+    .query(roleListQuery)
+    .then(([rows, fields]) => {
+      const roleList = rows.map((e) => e.title);
+      deleteRoleQuery(roleList);
+    });
+}
+
+function deleteRoleQuery(roleList) {
+  inquirer
+    .prompt(inquirerQuestions.deleteRoleQuestions(roleList))
+    .then((result) => {
+      const deleteRoleQuery = `DELETE FROM role WHERE title=?`;
+      db.promise()
+        .query(deleteRoleQuery, result.roleTitle)
+        .then(() => {
+          console.log(`Deleted ${result.roleTitle} from role table`);
           init();
         });
     });
@@ -359,8 +408,11 @@ function handleChoice(choice) {
       case "View employees by department":
         viewEmployeeByDepartment();
         break;
-      case "Delete department":
+      case "Delete departments":
         deleteDepartment();
+        break;
+      case "Delete roles":
+        deleteRole();
         break;
     }
 }
