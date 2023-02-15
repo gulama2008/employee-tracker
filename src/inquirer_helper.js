@@ -91,8 +91,18 @@ function addNewDepartment() {
         })  
 }
 
-async function addNewRole() {
-  const updatedDepartmentList = await getUpdatedDepartmentList();
+function addNewRole() {
+  const departmentListQuery = `SELECT name FROM department`;
+  db.promise()
+    .query(departmentListQuery)
+    .then(([rows, fields]) => {
+      const updatedDepartmentList = rows.map((e) => e.name);
+      addRole(updatedDepartmentList);
+    })
+    .catch(console.log);
+}
+
+function addRole(updatedDepartmentList) {
   inquirer
     .prompt(inquirerQuestions.addNewRoleQuestions(updatedDepartmentList))
     .then((result) => {
@@ -100,10 +110,11 @@ async function addNewRole() {
       db.promise()
         .query(getDepartmentIdByNameQuery, result.roleDepartment)
         .then(([rows, fields]) => {
-          return rows[0].id;
+          params.push(rows[0].id);
+          return params;
         })
-        .then((departmentId) => {
-          const insertRoleQuery = `INSERT INTO role (title,salary,department_id) VALUES (?,?,?)`;
+        .then((params) => {
+          const query = `INSERT INTO role (title,salary,department_id) VALUES (?,?,?)`;
           db.promise()
             .query(insertRoleQuery, [
               result.roleName,
@@ -125,7 +136,6 @@ function addNewEmployee() {
       .query(roleListQuery)
       .then(([rows, fields]) => {
         const updatedRoleList = rows.map((e) => e.title);
-        console.log(updatedRoleList, 111);
         const employeeList = `SELECT CONCAT(first_name," ",last_name) AS name FROM employee`;
         db.promise()
           .query(employeeList)
@@ -150,17 +160,14 @@ function addEmployee(updatedRoleList,updatedEmployeeList) {
           .query(getRoleIdByName, result.employeeRole)
           .then(([rows, fields]) => {
             params.push(rows[0].id);
-            console.log(params, 1);
             const getManagerIdByName = `SELECT id FROM employee WHERE CONCAT(first_name," ",last_name)=?`;
             db.promise()
               .query(getManagerIdByName, result.employeeManager)
               .then(([rows, fields]) => {
                 params.push(rows[0].id);
-                console.log(params, 1);
                 return params;
               })
               .then((params) => {
-                console.log(params, 2);
                 const query = `INSERT INTO employee (first_name,last_name,role_id,manager_id) VALUES (?,?,?,?)`;
                 db.promise()
                 .query(query, params)
