@@ -87,7 +87,6 @@ function addNewRole() {
     .query(departmentListQuery)
     .then(([rows, fields]) => {
       const updatedDepartmentList = rows.map((e) => e.name);
-      console.log(updatedDepartmentList, 111);
       addRole(updatedDepartmentList);
     })
     .catch(console.log);
@@ -105,11 +104,9 @@ function addRole(updatedDepartmentList) {
         .query(getDepartmentIdByName, result.roleDepartment)
         .then(([rows, fields]) => {
           params.push(rows[0].id);
-          console.log(params, 1);
           return params;
         })
         .then((params) => {
-          console.log(params, 2);
           const query = `INSERT INTO role (title,salary,department_id) VALUES (?,?,?)`;
           db.promise()
             .query(query, params)
@@ -128,7 +125,6 @@ function addNewEmployee() {
       .query(roleListQuery)
       .then(([rows, fields]) => {
         const updatedRoleList = rows.map((e) => e.title);
-        console.log(updatedRoleList, 111);
         const employeeList = `SELECT CONCAT(first_name," ",last_name) AS name FROM employee`;
         db.promise()
           .query(employeeList)
@@ -153,17 +149,14 @@ function addEmployee(updatedRoleList,updatedEmployeeList) {
           .query(getRoleIdByName, result.employeeRole)
           .then(([rows, fields]) => {
             params.push(rows[0].id);
-            console.log(params, 1);
             const getManagerIdByName = `SELECT id FROM employee WHERE CONCAT(first_name," ",last_name)=?`;
             db.promise()
               .query(getManagerIdByName, result.employeeManager)
               .then(([rows, fields]) => {
                 params.push(rows[0].id);
-                console.log(params, 1);
                 return params;
               })
               .then((params) => {
-                console.log(params, 2);
                 const query = `INSERT INTO employee (first_name,last_name,role_id,manager_id) VALUES (?,?,?,?)`;
                 db.promise()
                 .query(query, params)
