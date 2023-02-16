@@ -27,12 +27,14 @@ const init = function () {
         })
 }
 
+//function of getting the most updated role title list
 async function getUpdatedRoleList() {
   const roleListQuery = `SELECT title FROM role`;
   const result = await db.promise().query(roleListQuery);
   return result[0].map((e) => e.title);
 }
 
+//function of getting the most updated department name list
 async function getUpdatedDepartmentList() {
   const departmentListQuery = `SELECT name FROM department`;
   const result = await db.promise().query(departmentListQuery);
@@ -91,6 +93,7 @@ function addNewDepartment() {
         })  
 }
 
+//function of adding new role to a selected department
 function addNewRole() {
   const departmentListQuery = `SELECT name FROM department`;
   db.promise()
@@ -101,7 +104,6 @@ function addNewRole() {
     })
     .catch(console.log);
 }
-
 function addRole(updatedDepartmentList) {
   inquirer
     .prompt(inquirerQuestions.addNewRoleQuestions(updatedDepartmentList))
@@ -129,6 +131,7 @@ function addRole(updatedDepartmentList) {
     });
 }
 
+//function of adding a new employee to a selected role and allocate a manager
 function addNewEmployee() {
     const roleListQuery = `SELECT title FROM role`;
     db.promise()
@@ -146,7 +149,6 @@ function addNewEmployee() {
       })
       .catch(console.log);
 }
-
 function addEmployee(updatedRoleList,updatedEmployeeList) {
     inquirer
       .prompt(inquirerQuestions.addNewEmployeeQuestions(updatedRoleList,updatedEmployeeList))
@@ -196,7 +198,6 @@ function updateEmployeeRole() {
           .catch(console.log);
       })
 }
-
 function updateEmployee(updatedEmployeeList, updatedRoleList) {
   inquirer
     .prompt(inquirerQuestions.updateEmployeeRoleQuestions(updatedEmployeeList,updatedRoleList))
@@ -217,6 +218,7 @@ function updateEmployee(updatedEmployeeList, updatedRoleList) {
     })
 }
 
+
 function updateEmployeeManager() { 
   const employeeList = `SELECT CONCAT(first_name," ",last_name) AS name FROM employee`;
   db.promise()
@@ -227,7 +229,6 @@ function updateEmployeeManager() {
     })
     .catch(console.log);
 }
-
 function updateManager(updatedEmployeeList) {
   inquirer
     .prompt(
@@ -331,8 +332,6 @@ function deleteDepartmentQuery(departmentList) {
     });
 }
 
-
-
 async function deleteRole() {
   const updatedRoleList = await getUpdatedRoleList();
   inquirer
@@ -347,30 +346,6 @@ async function deleteRole() {
         });
     });
 }
-
-// function deleteRole() {
-//   const roleListQuery = `SELECT title FROM role`;
-//   db.promise()
-//     .query(roleListQuery)
-//     .then(([rows, fields]) => {
-//       const roleList = rows.map((e) => e.title);
-//       deleteRoleQuery(roleList);
-//     });
-// }
-
-// function deleteRoleQuery(roleList) {
-//   inquirer
-//     .prompt(inquirerQuestions.deleteRoleQuestions(roleList))
-//     .then((result) => {
-//       const deleteRoleQuery = `DELETE FROM role WHERE title=?`;
-//       db.promise()
-//         .query(deleteRoleQuery, result.roleTitle)
-//         .then(() => {
-//           console.log(`Deleted ${result.roleTitle} from role table`);
-//           init();
-//         });
-//     });
-// }
 
 function deleteEmployee() {
   const employeeListQuery = `SELECT CONCAT(first_name," ",last_name) as name FROM employee`;

@@ -1,3 +1,4 @@
+//questions to be used in prompt of inquirer
 const mainMenuQuestions = [
     {
         type: "list",
