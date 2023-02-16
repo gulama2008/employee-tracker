@@ -106,9 +106,12 @@ function addRole(updatedDepartmentList) {
   inquirer
     .prompt(inquirerQuestions.addNewRoleQuestions(updatedDepartmentList))
     .then((result) => {
-      const getDepartmentIdByNameQuery = `SELECT id FROM department WHERE name=?`;
+      const params = [];
+      params.push(result.roleName);
+      params.push(result.roleSalary);
+      const getDepartmentIdByName = `SELECT id FROM department WHERE name=?`;
       db.promise()
-        .query(getDepartmentIdByNameQuery, result.roleDepartment)
+        .query(getDepartmentIdByName, result.roleDepartment)
         .then(([rows, fields]) => {
           params.push(rows[0].id);
           return params;
@@ -116,13 +119,9 @@ function addRole(updatedDepartmentList) {
         .then((params) => {
           const query = `INSERT INTO role (title,salary,department_id) VALUES (?,?,?)`;
           db.promise()
-            .query(insertRoleQuery, [
-              result.roleName,
-              result.roleSalary,
-              departmentId,
-            ])
+            .query(query, params)
             .then(() => {
-              console.log(`Added ${result.roleName}} to the database`);
+              console.log(`Added ${params[0]} to the database`);
               init();
             })
             .catch(console.log);
@@ -461,4 +460,6 @@ function handleChoice(choice) {
     }
 }
 
-init();
+module.exports = {
+  init,
+}
